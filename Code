@@ -1,0 +1,100 @@
+(function() {
+  // Function to create the panel
+  function createPanel() {
+    // Remove existing panel if already open
+    const existing = document.getElementById("cookieCheatPanel");
+    if (existing) existing.remove();
+
+    // Create panel
+    const panel = document.createElement("div");
+    panel.id = "cookieCheatPanel";
+    panel.style.position = "fixed";
+    panel.style.top = "20px";
+    panel.style.right = "20px";
+    panel.style.background = "rgba(30, 30, 30, 0.95)";
+    panel.style.color = "white";
+    panel.style.padding = "12px";
+    panel.style.border = "2px solid #888";
+    panel.style.borderRadius = "10px";
+    panel.style.zIndex = "999999";
+    panel.style.fontFamily = "Arial, sans-serif";
+    panel.style.boxShadow = "0 0 10px black";
+
+    const title = document.createElement("div");
+    title.textContent = "Cookie Clicker Building Spawner 🍪";
+    title.style.fontWeight = "bold";
+    title.style.marginBottom = "8px";
+    panel.appendChild(title);
+
+    // Dropdown for buildings
+    const select = document.createElement("select");
+    for (let i in Game.ObjectsById) {
+      const obj = Game.ObjectsById[i];
+      const option = document.createElement("option");
+      option.value = obj.name;
+      option.textContent = obj.name;
+      select.appendChild(option);
+    }
+    panel.appendChild(select);
+
+    // Input for amount
+    const input = document.createElement("input");
+    input.type = "number";
+    input.placeholder = "Amount";
+    input.style.margin = "0 8px";
+    input.style.width = "80px";
+    panel.appendChild(input);
+
+    // Button
+    const button = document.createElement("button");
+    button.textContent = "Add";
+    button.style.padding = "4px 8px";
+    button.style.cursor = "pointer";
+    button.style.borderRadius = "5px";
+    button.onclick = function() {
+      const buildingName = select.value;
+      const amount = parseInt(input.value);
+      if (isNaN(amount) || amount <= 0) {
+        alert("Enter a valid number greater than 0!");
+        return;
+      }
+
+      const obj = Game.Objects[buildingName];
+      if (obj) {
+        obj.amount += amount;
+        obj.bought += amount;
+        Game.BuildingsOwned += amount;
+        Game.RebuildUpgrades();
+        Game.RefreshStore();
+        Game.Logic();
+        Game.Draw();
+        alert(`Gave you ${amount} ${buildingName}${amount > 1 ? "s" : ""}!`);
+      }
+    };
+    panel.appendChild(button);
+
+    // Close button
+    const close = document.createElement("div");
+    close.textContent = "✖";
+    close.style.position = "absolute";
+    close.style.top = "4px";
+    close.style.right = "8px";
+    close.style.cursor = "pointer";
+    close.onclick = () => panel.remove();
+    panel.appendChild(close);
+
+    document.body.appendChild(panel);
+  }
+
+  // Add keybind listener (press Q to reopen)
+  document.addEventListener("keydown", function(e) {
+    if (e.key.toLowerCase() === "q" && !document.getElementById("cookieCheatPanel")) {
+      createPanel();
+    }
+  });
+
+  // Create panel immediately on first run
+  createPanel();
+
+  alert("Press 'Q' anytime to reopen the building spawner!");
+})();
